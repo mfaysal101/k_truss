@@ -22,6 +22,7 @@ class MyGraph
 	
 	int computeSupport(map<Edge, int>& support);
 	
+	void writeSupport(string& filename, map<Edge, int>& support);
 };
 
 

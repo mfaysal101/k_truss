@@ -31,9 +31,9 @@ int main(int argc, char *argv[])
 	
 	if(c == 1)		// do truss decomposition
 	{
-		map<Edge, int> trussd;
-		mygraph.computeTruss(trussd);
+		std::map<Edge, int> support;
+		mygraph.computeSupport(support);
+		mygraph.writeSupport(indexfile,support);
 	}
-	
 	return 0;
 }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -139,6 +140,24 @@ int MyGraph::computeSupport(map<Edge, int>& support)
 			//*/
 		}	
 	}
-	
 	return smax;
+}
+
+void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
+{
+	std::ofstream writer(filename);
+	
+	if(writer != nullptr)
+	{
+		for(auto it = support.begin(); it != support.end(); it++)
+		{
+			Edge edge = it->first;
+			writer<<edge.s<<","<<edge.t<<","<<it->second<<endl;
+		}
+		writer.close();
+	}
+	else
+	{
+		cout<<"Could not write support"<<endl;
+	}
 }
