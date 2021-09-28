@@ -8,6 +8,12 @@ class Edge
 	int s;
 	int t;
 	
+
+	Edge()
+	{
+		
+	}
+	
 	Edge(int source, int target)
 	{
 		s = source;
