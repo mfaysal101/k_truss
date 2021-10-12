@@ -10,19 +10,21 @@ int main(int argc, char *argv[])
 {
 
 	string networkfile;
+	string supportfile;
 	string indexfile;
 	int c;
 
-	if (argc < 4) 
+	if (argc < 5) 
 	{
-		cout << "Call: ./ktruss c networkfile indexfile"<< endl;
+		cout << "Call: ./ktruss c networkfile supportfile indexfile"<< endl;
 		exit(-1);
 	}
 	else
 	{
 		c = atoi(argv[1]);
 		networkfile = argv[2];
-		indexfile = argv[3];
+		supportfile = argv[3];
+		indexfile = argv[4];
 	}
 
 	MyGraph mygraph;
@@ -33,7 +35,7 @@ int main(int argc, char *argv[])
 	{
 		std::map<Edge, int> support;
 		mygraph.computeSupport(support);
-		mygraph.writeSupport(indexfile,support);
+		mygraph.writeSupport(supportfile,support);
 	}
 	return 0;
 }

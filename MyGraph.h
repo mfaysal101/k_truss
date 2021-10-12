@@ -28,6 +28,11 @@ class MyGraph
 	void bucketSortedEdgelist(int kmax, std::map<Edge, int>& sp, std::vector<Edge>& sorted_elbys, std::map<int, int>& svp, std::map<Edge, int>& sorted_ep);
 	
 	void reorderEL(std::vector<Edge>& sorted_elbys, std::map<Edge, int>& sorted_ep, std::map<Edge, int>& supd, std::map<int, int>& svp, Edge e1);
+	
+	Edge removeEdge(int u, int v);
+	
+	Edge getEdge(int u, int v);
+	
 };
 
 

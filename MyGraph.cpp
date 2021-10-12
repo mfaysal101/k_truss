@@ -306,3 +306,22 @@ void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& s
 		bucket[it->second] = bucket[it->second] + 1;
 	}
 }
+
+Edge MyGraph::removeEdge(int u, int v)
+{
+	Edge re;
+	
+	if(graph[u].find(v) != graph[u].end())
+	{
+		auto it = graph[u].find(v);
+		re = it->second;
+		graph[u].erase(v);
+		graph[v].erase(u);
+	}	
+	return re;
+}
+
+Edge MyGraph::getEdge(int u, int v)
+{
+	return graph[u].find(v)->second;
+}
