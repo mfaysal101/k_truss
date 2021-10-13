@@ -19,6 +19,8 @@ class MyGraph
 	
 	void readGraphEdgelist(std::string filename);
 	
+	int processEdge(int src, int dst);
+	
 	std::map<int, std::set<Edge>> computeTruss(std::map<Edge, int>& trussd);
 	
 	int computeSupport(std::map<Edge, int>& support);

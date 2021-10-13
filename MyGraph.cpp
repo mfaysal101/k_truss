@@ -12,6 +12,7 @@ using namespace std;
 typedef map<int, Edge> Edgemap;
 typedef map<int, map<int, Edge>> graphmap;
 
+
 void MyGraph::readGraphEdgelist(string filename)
 {
 	char FILENAME[filename.length() + 1];
@@ -35,56 +36,64 @@ void MyGraph::readGraphEdgelist(string filename)
 
 	while((getline(&line, &len, fp) != -1)) 
 	{
-		int src = atoi(strtok(line, " \t"));
+		int src = atoi(strtok(line, " ,\t"));
 		
-		int dst = atoi(strtok(NULL, " \t"));
+		int dst = atoi(strtok(NULL, " ,\t"));
 		
-		if(src == dst)
-		{
-			continue;
-		}
-		
-		Edge edge(src, dst);
-		
-		numEdges++;
-		
-		graphmap::iterator src_it = graph.find(src);
-		
-		if(src_it != graph.end())
-		{
-			if(src_it->second.count(dst) == 0)  // this checking is done to ensure no repeated edge is inserted
-			{
-				src_it->second.insert(make_pair(dst, edge));
-			}
-		}
-		else
-		{
-			Edgemap tempmap;
-			tempmap.insert(make_pair(dst, edge));
-			graph.insert(make_pair(src, tempmap));
-		}
-		
-		graphmap::iterator dst_it = graph.find(dst);
-		
-		if(dst_it != graph.end())
-		{
-			if(dst_it->second.count(src) == 0)  // this checking is done to ensure no repeated edge is inserted
-			{
-				dst_it->second.insert(make_pair(src, edge));
-			}
-		}
-		else
-		{
-			Edgemap tempmap;
-			tempmap.insert(make_pair(src, edge));
-			graph.insert(make_pair(dst, tempmap));
-		}
-		
+		numEdges += processEdge(src, dst);
 	}
 	
 	numVertices = graph.size();
 	
-	printf("Graph successfully read with %lld vertices and %lld edges\n", numVertices, numEdges);
+	printf("Number of vertices:%lld\n",numVertices);
+	printf("Number of edges:%lld\n", numEdges);
+}
+
+int MyGraph::processEdge(int src, int dst)
+{
+	if(src == dst)
+	{
+		return 0;
+	}
+	
+	Edge edge(src, dst);
+	
+	graphmap::iterator src_it = graph.find(src);
+	
+	if(src_it == graph.end())
+	{
+		Edgemap tempmap;
+		tempmap.insert(make_pair(dst, edge));
+		graph.insert(make_pair(src, tempmap));
+	}
+	else
+	{	
+		if(src_it->second.count(dst) > 0)  // this checking is done to ensure no repeated edge is inserted
+		{
+			return 0;
+		}
+		src_it->second.insert(make_pair(dst, edge));
+		
+	}
+	
+	graphmap::iterator dst_it = graph.find(dst);
+	
+	if(dst_it == graph.end())
+	{
+		Edgemap tempmap;
+		tempmap.insert(make_pair(src, edge));
+		graph.insert(make_pair(dst, tempmap));
+	}
+	else
+	{
+		if(dst_it->second.count(src) > 0)  // this checking is done to ensure no repeated edge is inserted
+		{
+			return 0;
+		}
+		dst_it->second.insert(make_pair(src, edge));
+	}
+	
+	return 1;
 }
 
 map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
