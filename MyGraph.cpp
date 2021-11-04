@@ -73,7 +73,6 @@ int MyGraph::processEdge(int src, int dst)
 			return 0;
 		}
 		src_it->second.insert(make_pair(dst, edge));
-		
 	}
 	
 	graphmap::iterator dst_it = graph.find(dst);
@@ -96,7 +95,7 @@ int MyGraph::processEdge(int src, int dst)
 	return 1;
 }
 
-map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
+map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd)
 {
 	map<int, set<Edge>> klistdict;
 	
@@ -105,6 +104,9 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 	map<Edge, int> sp;
 	
 	int kmax = computeSupport(sp);
+	
+	string supportname = "support.txt"; 
+	writeSupport(supportname,sp);
 	
 	std::printf("maximum support found:%d\n", kmax);
 	
@@ -118,12 +120,17 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 	
 	bucketSortedEdgelist(kmax, sp, sorted_elbys, svp, sorted_ep);
 	
+	set<Edge> kedgelist;
+	klistdict.insert(make_pair(k, kedgelist));
+	
 	for(int i = 0; i < sorted_elbys.size(); i++)
 	{
 		auto e = sorted_elbys[i];
 		int val = sp[e];
 		if(val > (k - 2))
 		{
+			set<Edge> kedgelist;
+			klistdict.insert(make_pair(k, kedgelist));
 			k = val + 2; 
 		}
 		
@@ -141,6 +148,7 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 		}
 		
 		map<int, Edge> nls = graph[src];
+		
 		for(Edgemap::iterator it = nls.begin(); it != nls.end(); it++)
 		{
 			int v = it->first;
@@ -154,9 +162,7 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 				{
 					if(sp[e1] > (k - 2))
 					{
-						
-						reorderEL(sorted_elbys, sorted_ep, sp, svp, e1);
-						
+						reorderEL(sorted_elbys, sorted_ep, sp, svp, e1);	
 					}
 					
 					if(sp[e2] > (k - 2))
@@ -167,6 +173,7 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 			}
 		}
 		
+		/*
 		if(klistdict.find(k) != klistdict.end())
 		{
 			klistdict[k].insert(e);
@@ -177,6 +184,14 @@ map<int, set<Edge>> MyGraph::computeTruss(map<Edge, int>& trussd)
 			klistdict.insert(make_pair(k, kedgelist));
 			klistdict[k].insert(e);
 		}
+		*/
+		klistdict[k].insert(e);
+		trussd.insert(make_pair(e, k));
+	}
+	
+	for (auto item : svp)
+	{
+		cout<<item.first<<"\t"<<item.second<<"\n";
 	}
 	
 	return klistdict;
@@ -191,29 +206,29 @@ void MyGraph::reorderEL(std::vector<Edge>& sorted_elbys, std::map<Edge, int>& so
 	if(cp != pos1)
 	{
 		Edge tmp2 = sorted_elbys[cp];
-		sorted_ep.insert(make_pair(e1, cp));
-		sorted_ep.insert(make_pair(tmp2, pos1));
+		sorted_ep[e1] = cp;
+		sorted_ep[tmp2] = pos1;
 		sorted_elbys[pos1] = tmp2; //it could be a source of potential array index out of bound error
-		svp.insert(make_pair(val, cp + 1));
+		svp[val] = cp + 1;
 		sorted_elbys[cp] = e1;
 	}
 	else
 	{
 		if(sorted_elbys.size() > (cp + 1) && supd[sorted_elbys[cp+1]] == val)
 		{
-			svp.insert(make_pair(val, cp+1));
+			svp[val] = cp+1;
 		}
 		else
 		{
-			svp.insert(make_pair(val, -1));
+			svp[val] = -1;
 		}
 	}
 	
 	if(svp.find(val-1) == svp.end() || svp[val-1] == -1)
 	{
-		svp.insert(make_pair(val - 1, cp));
+		svp[val - 1] = cp;
 	}
-	supd.insert(make_pair(e1, val - 1));
+	supd[e1] = val - 1;
 }
 
 int MyGraph::computeSupport(map<Edge, int>& support)
@@ -266,6 +281,8 @@ int MyGraph::computeSupport(map<Edge, int>& support)
 
 void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
 {
+	cout<<"support file name:"<<filename<<"\n";
+	
 	std::ofstream writer(filename);
 	
 	if(writer != nullptr)
@@ -287,11 +304,11 @@ void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& s
 {
 	vector<int> bucket((kmax + 1), 0);
 	
+	//#pragma omp parallel for
 	for(map<Edge, int>::iterator it = sp.begin(); it != sp.end(); it++)
 	{
 		bucket[it->second]++;
 	}
-	
 
 	int temp;
 	
@@ -303,7 +320,7 @@ void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& s
 		bucket[i] = p;
 		p = p + temp;
 	}
-	
+		
 	for(map<Edge, int>::iterator it = sp.begin(); it != sp.end(); it++)
 	{
 		sorted_elbys[bucket[it->second]] = it->first;
@@ -313,6 +330,11 @@ void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& s
 			svp.insert(make_pair(it->second, bucket[it->second]));
 		}
 		bucket[it->second] = bucket[it->second] + 1;
+	}
+	
+	for(int i = 0; i < bucket.size(); i++)
+	{
+		cout<<bucket[i]<<endl;
 	}
 }
 

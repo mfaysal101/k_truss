@@ -21,7 +21,7 @@ class MyGraph
 	
 	int processEdge(int src, int dst);
 	
-	std::map<int, std::set<Edge>> computeTruss(std::map<Edge, int>& trussd);
+	std::map<int, std::set<Edge>> computeTruss(std::string pathtec, std::map<Edge, int>& trussd);
 	
 	int computeSupport(std::map<Edge, int>& support);
 	

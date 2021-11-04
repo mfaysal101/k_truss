@@ -2,6 +2,8 @@
 #include<string>
 #include "MyGraph.h"
 #include<map>
+#include<set>
+#include "TecIndexSB.h"
 
 using namespace std;
 
@@ -29,13 +31,22 @@ int main(int argc, char *argv[])
 
 	MyGraph mygraph;
 	
+	TecIndexSB tec;
+	
 	mygraph.readGraphEdgelist(networkfile);
 	
 	if(c == 1)		// do truss decomposition
 	{
-		std::map<Edge, int> support;
-		mygraph.computeSupport(support);
-		mygraph.writeSupport(supportfile,support);
+		map<int, set<Edge>> klistdict;
+		map<Edge, int> trussd;
+		
+		klistdict = mygraph.computeTruss(supportfile, trussd);
+		
+		mygraph.writeSupport(supportfile,trussd);
+		
+		tec.constructIndex(klistdict, trussd, mygraph);
+		
+		tec.writeIndex(indexfile);
 	}
 	return 0;
 }
