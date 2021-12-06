@@ -22,7 +22,8 @@ void MyGraph::readGraphEdgelist(string filename)
 	
 	FILE* fp = fopen(FILENAME, "r");
 
-	if (fp == NULL) {
+	if (fp == NULL) 
+	{
 		printf("Could not open file\n");
 		exit(EXIT_FAILURE);
 	}
@@ -99,8 +100,6 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 {
 	map<int, set<Edge>> klistdict;
 	
-	//set<Edge> kedgelist;
-	
 	map<Edge, int> sp;
 	
 	int kmax = computeSupport(sp);
@@ -123,7 +122,7 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 	set<Edge> kedgelist;
 	klistdict.insert(make_pair(k, kedgelist));
 	
-	for(int i = 0; i < sorted_elbys.size(); i++)
+	for(size_t i = 0; i < sorted_elbys.size(); i++)
 	{
 		auto e = sorted_elbys[i];
 		int val = sp[e];
@@ -173,25 +172,8 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 			}
 		}
 		
-		/*
-		if(klistdict.find(k) != klistdict.end())
-		{
-			klistdict[k].insert(e);
-		}
-		else
-		{
-			set<Edge> kedgelist;
-			klistdict.insert(make_pair(k, kedgelist));
-			klistdict[k].insert(e);
-		}
-		*/
 		klistdict[k].insert(e);
 		trussd.insert(make_pair(e, k));
-	}
-	
-	for (auto item : svp)
-	{
-		cout<<item.first<<"\t"<<item.second<<"\n";
 	}
 	
 	return klistdict;
@@ -330,11 +312,6 @@ void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& s
 			svp.insert(make_pair(it->second, bucket[it->second]));
 		}
 		bucket[it->second] = bucket[it->second] + 1;
-	}
-	
-	for(int i = 0; i < bucket.size(); i++)
-	{
-		cout<<bucket[i]<<endl;
 	}
 }
 

@@ -23,65 +23,74 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 		klistdict.erase(2);
 	}
 	
-	Edge ek, e1, e2, e;
-	
-	set<Edge> proes;
-	queue<Edge> Q;
+	Edge e1, e2;
 	
 	int x, y;
 	
 	for(std::map<int, std::set<Edge>>::iterator it = klistdict.begin(); it != klistdict.end(); it++)
 	{
 		set<Edge> kedgelist = it->second;
+		vector<bool> removed(kedgelist.size(), false);
+		size_t cur_index = 0;
+		
 
-		for(auto ed: kedgelist)
+		for(set<Edge>::iterator edgeit = kedgelist.begin(); edgeit != kedgelist.end(); edgeit++, cur_index++)
 		{
-			Q.push(ed);
-			SGN Vk(it->first, tnid);
-			idSGN.insert(make_pair(tnid, Vk));
-			
-			set<int> nl;
-			
-			SG.insert(make_pair(tnid, nl));
-			
-			while(!Q.empty())
+			set<Edge> proes;
+			queue<Edge> Q;
+
+			if (!removed[cur_index])
 			{
-				Edge uv = Q.front();
-				x = uv.s;
-				y = uv.t;
-				
-				if(mg.graph[x].size() > mg.graph[y].size())
+				Q.push(*edgeit);
+				proes.insert(*edgeit);
+				removed[cur_index] = true;
+
+				SGN Vk(it->first, tnid);
+				idSGN.insert(make_pair(tnid, Vk));
+
+				set<int> nl;
+
+				SG.insert(make_pair(tnid, nl));
+
+				while (!Q.empty())
 				{
-					y = uv.s;
-					x = uv.t;
-				}
-				
-				Vk.addEdge(Q.front());
-				Q.pop();
-				
-				addComVertex(x, tnid, vtoSGN);
-				addComVertex(y, tnid, vtoSGN);
-				addEdgetoTrussCom(e, tnid, edgeigd);
-				mg.removeEdge(x, y);
-				
-				for(auto ite = mg.graph[x].begin(); ite != mg.graph[x].end(); ite++)
-				{
-					int ne = ite->first;
-					if(mg.graph[y].find(ne) != mg.graph[y].end())
+					Edge uv = Q.front();
+					x = uv.s;
+					y = uv.t;
+
+					if (mg.graph[x].size() > mg.graph[y].size())
 					{
-						e1 = mg.getEdge(x, ne);
-						t1 = trussd[e1];
-						e2 = mg.getEdge(y,ne);
-						t2 = trussd[e2];
-						
-						processTriangleEdge(e1, t1, proes, kedgelist, Q, Vk, edgeigd);
-						
-						processTriangleEdge(e2, t2, proes, kedgelist, Q, Vk, edgeigd);
+						y = uv.s;
+						x = uv.t;
+					}
+
+					idSGN[tnid].addEdge(uv);
+					Q.pop();
+
+					addComVertex(x, tnid, vtoSGN);
+					addComVertex(y, tnid, vtoSGN);
+					addEdgetoTrussCom(uv, tnid, edgeigd);
+					mg.removeEdge(x, y);
+
+					for (auto ite = mg.graph[x].begin(); ite != mg.graph[x].end(); ite++)
+					{
+						int ne = ite->first;
+						if (mg.graph[y].find(ne) != mg.graph[y].end())
+						{
+							e1 = mg.getEdge(x, ne);
+							t1 = trussd[e1];
+							e2 = mg.getEdge(y, ne);
+							t2 = trussd[e2];
+
+							processTriangleEdge(e1, t1, proes, kedgelist, Q, idSGN[tnid], edgeigd, removed);
+
+							processTriangleEdge(e2, t2, proes, kedgelist, Q, idSGN[tnid], edgeigd, removed);
+						}
 					}
 				}
+
+				tnid++;
 			}
-			
-			tnid++;
 		}
 	}
 	
@@ -121,13 +130,15 @@ void TecIndexSB::addEdgetoTrussCom(Edge e, int tns, map<Edge, map<int, int>>& ed
 }
 
 
-void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, set<Edge>& kedgelist, queue<Edge>& Q, SGN Vk, map<Edge, map<int, int>>& edgeigd)
+void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, set<Edge>& kedgelist, queue<Edge>& Q, SGN Vk, map<Edge, map<int, int>>& edgeigd, vector<bool>& removed)
 {
 	if(proes.find(e1) == proes.end())
 	{
 		if(t1 == Vk.truss)
 		{
-			kedgelist.erase(e1);
+			auto ite = kedgelist.find(e1);
+			size_t index = distance(kedgelist.begin(), ite);
+			removed[index] = true;
 			Q.push(e1);
 		}
 		else
@@ -176,7 +187,7 @@ void TecIndexSB::writeIndex(string filename)
 			SGN sg = it->second;
 			writer<<"id,"<<it->first<<",truss,"<<sg.truss<<endl;
 			
-			for(int i = 0; i < sg.edgelist.size(); i++)
+			for(size_t i = 0; i < sg.edgelist.size(); i++)
 			{
 				writer<<sg.edgelist[i].s<<","<<sg.edgelist[i].t<<endl;
 			}

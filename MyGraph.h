@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <string>
 
 
 
@@ -15,6 +16,12 @@ class MyGraph
 	long long numEdges;
 	long long numVertices;
 	
+	MyGraph()
+	{
+		numVertices = 0;
+		numEdges = 0;
+	}
+
 	std::map<int, std::map<int, Edge>> graph;
 	
 	void readGraphEdgelist(std::string filename);
