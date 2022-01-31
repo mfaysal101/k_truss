@@ -180,7 +180,7 @@ void TecIndexSB::writeIndex(string filename)
 	
 	std::ofstream writer(supernodefile);
 	
-	if(writer != nullptr)
+	if(writer)
 	{
 		for(auto it = idSGN.begin(); it != idSGN.end(); it++)
 		{
@@ -200,7 +200,7 @@ void TecIndexSB::writeIndex(string filename)
 	}
 	
 	writer.open(original2Indexfile);
-	if(writer != nullptr)
+	if(writer)
 	{
 		writer<<"original_node_id index_graph_node_id"<<endl;
 		
@@ -220,7 +220,7 @@ void TecIndexSB::writeIndex(string filename)
 	
 	writer.open(summaryIndexfile);
 	
-	if(writer != nullptr)
+	if(writer)
 	{
 		for(auto it = SG.begin(); it != SG.end(); it++)
 		{

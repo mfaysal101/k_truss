@@ -267,7 +267,7 @@ void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
 	
 	std::ofstream writer(filename);
 	
-	if(writer != nullptr)
+	if(writer)
 	{
 		for(auto it = support.begin(); it != support.end(); it++)
 		{
