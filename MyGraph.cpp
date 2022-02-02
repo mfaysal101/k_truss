@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <set>
+#include <chrono>
 
 
 using namespace std;
@@ -101,12 +102,19 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 	map<int, set<Edge>> klistdict;
 	
 	map<Edge, int> sp;
-	
+
 	int kmax = computeSupport(sp);
 	
-	string supportname = "support.txt"; 
+	string supportname = "support.txt";
+
+	auto t1 = std::chrono::high_resolution_clock::now(); 
 	writeSupport(supportname,sp);
-	
+	auto t2 = std::chrono::high_resolution_clock::now();
+
+	auto timediff = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+
+	printf("Support write time:%0.9f\n", timediff*(1e-9));
+
 	std::printf("maximum support found:%d\n", kmax);
 	
 	int k = 2;
@@ -261,6 +269,32 @@ int MyGraph::computeSupport(map<Edge, int>& support)
 	return smax;
 }
 
+
+void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
+{
+	cout<<"support file name:"<<filename<<"\n";
+	
+	FILE* fp = fopen(filename.c_str(), "w");
+	
+	if(fp != nullptr)
+	{
+		for(auto it = support.begin(); it != support.end(); it++)
+		{
+			Edge edge = it->first;
+			fprintf(fp, "%d,%d,%d\n", edge.s, edge.t, it->second);
+			//writer<<edge.s<<","<<edge.t<<","<<it->second<<endl;
+		}
+		fclose(fp);
+	}
+	else
+	{
+		cout<<"Could not write support"<<endl;
+	}
+}
+
+// I commented out the following write support function because the c++ output stream seems to be taking greater time than even Java's BufferedWriter.
+// My initial assumption was the map iteration being responsible, but after experimentation, it does not appear to be the case
+/*
 void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
 {
 	cout<<"support file name:"<<filename<<"\n";
@@ -281,6 +315,7 @@ void MyGraph::writeSupport(string& filename, map<Edge, int>& support)
 		cout<<"Could not write support"<<endl;
 	}
 }
+*/
 
 void MyGraph::bucketSortedEdgelist(int kmax, map<Edge, int>& sp, vector<Edge>& sorted_elbys, map<int, int>& svp, map<Edge, int>& sorted_ep)
 {

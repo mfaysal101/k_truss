@@ -23,7 +23,7 @@ class Edge
 	// "<" operator overloading required by c++ map for custom object type
 	bool operator<(const Edge &ob) const 
 	{
-        return s < ob.s || (s == ob.s && t < ob.t);
+        	return s < ob.s || (s == ob.s && t < ob.t);
 	}
 
 };
