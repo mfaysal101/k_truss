@@ -4,9 +4,14 @@
 #include<map>
 #include<set>
 #include "TecIndexSB.h"
+#include "global.h"
+#include <chrono>
 
 using namespace std;
 
+
+double totalExecutionTime;
+double constructIndexTime;
 
 int main(int argc, char *argv[]) 
 {
@@ -29,6 +34,11 @@ int main(int argc, char *argv[])
 		indexfile = argv[4];
 	}
 
+	totalExecutionTime = 0.0;
+	constructIndexTime = 0.0;
+	
+	auto start = std::chrono::high_resolution_clock::now();
+	
 	MyGraph mygraph;
 	
 	TecIndexSB tec;
@@ -47,6 +57,15 @@ int main(int argc, char *argv[])
 		tec.constructIndex(klistdict, trussd, mygraph);
 		
 		tec.writeIndex(indexfile);
+		
 	}
+	
+	auto end = std::chrono::high_resolution_clock::now();
+	
+	totalExecutionTime += std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+	
+	printf("========totalExecutionTime:%0.9f===========\n", totalExecutionTime*(1e-9));
+	printf("========constructIndexTime:%0.9f===========\n", constructIndexTime*(1e-9));
+	
 	return 0;
 }

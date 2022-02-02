@@ -23,7 +23,7 @@ class TecIndexSB
 	
 	void addEdgetoTrussCom(Edge e, int tns,std::map<Edge, std::map<int, int>>& edgeigd);
 	
-	void processTriangleEdge(Edge e1, int t1, std::set<Edge>& proes, std::set<Edge>& kedgelist, std::queue<Edge>& Q, SGN Vk, std::map<Edge, std::map<int, int>>& edgeigd, std::vector<bool>& removed);
+	void processTriangleEdge(Edge e1, int t1, std::set<Edge>& proes, std::set<Edge>& kedgelist, std::queue<Edge>& Q, SGN Vk, std::map<Edge, std::map<int, int>>& edgeigd, std::map<Edge, bool>& activeEdges);
 	
 	void addEdge4EdgeSpec(Edge e1, SGN Vk, std::map<Edge, std::map<int, int>>& edgeigd);
 	
