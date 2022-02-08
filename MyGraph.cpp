@@ -106,14 +106,8 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 	int kmax = computeSupport(sp);
 	
 	string supportname = "support.txt";
-
-	auto t1 = std::chrono::high_resolution_clock::now(); 
+ 
 	writeSupport(supportname,sp);
-	auto t2 = std::chrono::high_resolution_clock::now();
-
-	auto timediff = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
-
-	printf("Support write time:%0.9f\n", timediff*(1e-9));
 
 	std::printf("maximum support found:%d\n", kmax);
 	
@@ -126,10 +120,11 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 	map<int, int> svp;
 	
 	bucketSortedEdgelist(kmax, sp, sorted_elbys, svp, sorted_ep);
-	
+
 	set<Edge> kedgelist;
 	klistdict.insert(make_pair(k, kedgelist));
-	
+
+	double timediff = 0.0;
 	for(size_t i = 0; i < sorted_elbys.size(); i++)
 	{
 		auto e = sorted_elbys[i];
@@ -155,16 +150,15 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 		}
 		
 		map<int, Edge> nls = graph[src];
-		
+
+		auto t1 = std::chrono::high_resolution_clock::now();
 		for(Edgemap::iterator it = nls.begin(); it != nls.end(); it++)
 		{
 			int v = it->first;
-			map<int, Edge> vmap = graph[v];
-			
-			if(vmap.find(dst) != vmap.end())
+			if(graph[v].count(dst))
 			{
-				Edge e1 = vmap[src];
-				Edge e2 = vmap[dst];
+				Edge e1 = graph[v].at(src);
+				Edge e2 = graph[v].at(dst);
 				if(!(trussd.find(e1) != trussd.end() || trussd.find(e2) != trussd.end()))
 				{
 					if(sp[e1] > (k - 2))
@@ -179,11 +173,14 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 				}
 			}
 		}
-		
+		auto t2 = std::chrono::high_resolution_clock::now();
+		timediff += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
 		klistdict[k].insert(e);
 		trussd.insert(make_pair(e, k));
 	}
-	
+
+	printf("Hash time:%0.9f\n", timediff*(1e-9));
+
 	return klistdict;
 }
 
