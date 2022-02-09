@@ -124,7 +124,6 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 	set<Edge> kedgelist;
 	klistdict.insert(make_pair(k, kedgelist));
 
-	double timediff = 0.0;
 	for(size_t i = 0; i < sorted_elbys.size(); i++)
 	{
 		auto e = sorted_elbys[i];
@@ -151,7 +150,6 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 		
 		map<int, Edge> nls = graph[src];
 
-		auto t1 = std::chrono::high_resolution_clock::now();
 		for(Edgemap::iterator it = nls.begin(); it != nls.end(); it++)
 		{
 			int v = it->first;
@@ -173,13 +171,9 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 				}
 			}
 		}
-		auto t2 = std::chrono::high_resolution_clock::now();
-		timediff += std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
 		klistdict[k].insert(e);
 		trussd.insert(make_pair(e, k));
 	}
-
-	printf("Hash time:%0.9f\n", timediff*(1e-9));
 
 	return klistdict;
 }
