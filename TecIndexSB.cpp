@@ -14,7 +14,7 @@
 using namespace std;
 
 
-void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::map<Edge, int>trussd, MyGraph mg)
+void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::map<Edge, int> trussd, MyGraph mg)
 {
 	auto tm1 = std::chrono::high_resolution_clock::now();
 	
@@ -44,11 +44,14 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 		
 		for(set<Edge>::iterator edgeit = kedgelist.begin(); edgeit != kedgelist.end(); edgeit++)
 		{
+
 			set<Edge> proes;
 			queue<Edge> Q;
 
 			if (activeEdges[*edgeit])
 			{
+				auto time1 = std::chrono::high_resolution_clock::now();
+
 				Q.push(*edgeit);
 				proes.insert(*edgeit);
 				activeEdges[*edgeit] = false;
@@ -59,6 +62,9 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 				set<int> nl;
 
 				SG.insert(make_pair(tnid, nl));
+				
+				auto time2 = std::chrono::high_resolution_clock::now();
+				timediff += std::chrono::duration_cast<std::chrono::nanoseconds>(time2 - time1).count();
 
 				while (!Q.empty())
 				{
@@ -89,10 +95,8 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 							t1 = trussd[e1];
 							e2 = mg.getEdge(y, ne);
 							t2 = trussd[e2];
-
-							processTriangleEdge(e1, t1, proes, kedgelist, Q, idSGN[tnid], edgeigd, activeEdges);
-
-							processTriangleEdge(e2, t2, proes, kedgelist, Q, idSGN[tnid], edgeigd, activeEdges);
+							processTriangleEdge(e1, t1, proes, Q, idSGN[tnid], edgeigd, activeEdges);
+							processTriangleEdge(e2, t2, proes, Q, idSGN[tnid], edgeigd, activeEdges);	
 						}
 					}
 				}
@@ -102,6 +106,7 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 		}
 	}
 	
+	printf("Index time:%0.9f\n", timediff*(1e-9));
 	auto tm2 = std::chrono::high_resolution_clock::now();
 
 	constructIndexTime += std::chrono::duration_cast<std::chrono::nanoseconds>(tm2 - tm1).count();
@@ -142,7 +147,7 @@ void TecIndexSB::addEdgetoTrussCom(Edge e, int tns, map<Edge, map<int, int>>& ed
 }
 
 
-void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, set<Edge>& kedgelist, queue<Edge>& Q, SGN Vk, map<Edge, map<int, int>>& edgeigd, map<Edge, bool>& activeEdges)
+void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, queue<Edge>& Q, SGN& Vk, map<Edge, map<int, int>>& edgeigd, map<Edge, bool>& activeEdges)
 {
 	if(proes.find(e1) == proes.end())
 	{

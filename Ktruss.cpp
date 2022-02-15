@@ -14,7 +14,7 @@ double totalExecutionTime;
 double networkReadTime;
 double computeTrussTime;
 double constructIndexTime;
-
+double timediff;
 
 int main(int argc, char *argv[]) 
 {
@@ -41,7 +41,8 @@ int main(int argc, char *argv[])
 	networkReadTime = 0.0;
 	computeTrussTime = 0.0;
 	constructIndexTime = 0.0;
-	
+	timediff = 0.0;
+
 	auto start = std::chrono::high_resolution_clock::now();
 	
 	MyGraph mygraph;
