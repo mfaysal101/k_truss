@@ -8,12 +8,16 @@
 #include "TecIndexSB.h"
 #include <iostream>
 #include <string.h>
+#include <chrono>
+#include "global.h"
 
 using namespace std;
 
 
 void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::map<Edge, int>trussd, MyGraph mg)
 {
+	auto tm1 = std::chrono::high_resolution_clock::now();
+	
 	map<Edge, map<int, int>> edgeigd;
 	
 	int t1, t2, tnid = 0; //tree node id
@@ -30,21 +34,25 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 	for(std::map<int, std::set<Edge>>::iterator it = klistdict.begin(); it != klistdict.end(); it++)
 	{
 		set<Edge> kedgelist = it->second;
-		vector<bool> removed(kedgelist.size(), false);
-		size_t cur_index = 0;
+		map<Edge, bool>activeEdges;
 		
-
-		for(set<Edge>::iterator edgeit = kedgelist.begin(); edgeit != kedgelist.end(); edgeit++, cur_index++)
+		//copying element from set to map for ease in deletion later in the code
+		for(set<Edge>::iterator edgeit = kedgelist.begin(); edgeit != kedgelist.end(); edgeit++)
+		{
+			activeEdges.insert({*edgeit, true});
+		}
+		
+		for(set<Edge>::iterator edgeit = kedgelist.begin(); edgeit != kedgelist.end(); edgeit++)
 		{
 			set<Edge> proes;
 			queue<Edge> Q;
 
-			if (!removed[cur_index])
+			if (activeEdges[*edgeit])
 			{
 				Q.push(*edgeit);
 				proes.insert(*edgeit);
-				removed[cur_index] = true;
-
+				activeEdges[*edgeit] = false;
+				
 				SGN Vk(it->first, tnid);
 				idSGN.insert(make_pair(tnid, Vk));
 
@@ -82,9 +90,9 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 							e2 = mg.getEdge(y, ne);
 							t2 = trussd[e2];
 
-							processTriangleEdge(e1, t1, proes, kedgelist, Q, idSGN[tnid], edgeigd, removed);
+							processTriangleEdge(e1, t1, proes, kedgelist, Q, idSGN[tnid], edgeigd, activeEdges);
 
-							processTriangleEdge(e2, t2, proes, kedgelist, Q, idSGN[tnid], edgeigd, removed);
+							processTriangleEdge(e2, t2, proes, kedgelist, Q, idSGN[tnid], edgeigd, activeEdges);
 						}
 					}
 				}
@@ -93,6 +101,10 @@ void TecIndexSB::constructIndex(std::map<int, std::set<Edge>> klistdict, std::ma
 			}
 		}
 	}
+	
+	auto tm2 = std::chrono::high_resolution_clock::now();
+
+	constructIndexTime += std::chrono::duration_cast<std::chrono::nanoseconds>(tm2 - tm1).count();
 	
 }
 
@@ -130,15 +142,13 @@ void TecIndexSB::addEdgetoTrussCom(Edge e, int tns, map<Edge, map<int, int>>& ed
 }
 
 
-void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, set<Edge>& kedgelist, queue<Edge>& Q, SGN Vk, map<Edge, map<int, int>>& edgeigd, vector<bool>& removed)
+void TecIndexSB::processTriangleEdge(Edge e1, int t1, set<Edge>& proes, set<Edge>& kedgelist, queue<Edge>& Q, SGN Vk, map<Edge, map<int, int>>& edgeigd, map<Edge, bool>& activeEdges)
 {
 	if(proes.find(e1) == proes.end())
 	{
 		if(t1 == Vk.truss)
 		{
-			auto ite = kedgelist.find(e1);
-			size_t index = distance(kedgelist.begin(), ite);
-			removed[index] = true;
+			activeEdges[e1] = false;
 			Q.push(e1);
 		}
 		else

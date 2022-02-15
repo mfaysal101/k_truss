@@ -8,7 +8,7 @@ LFLAGS =  -g -fopenmp -Wall -Werror -O3
 
 TARGET  = ktruss
 
-HEADER  = Edge.h MyGraph.h SGN.h TecIndexSB.h
+HEADER  = Edge.h MyGraph.h SGN.h TecIndexSB.h global.h
 FILES = Ktruss.cpp MyGraph.cpp TecIndexSB.cpp
 
 OBJECTS = $(FILES:.cpp=.o)
