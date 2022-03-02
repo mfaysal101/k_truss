@@ -2,7 +2,7 @@
 CXX  = CC
 LINK = $(CXX)
 
-CXXFLAGS = -g -Wall -O3 -fopenmp --std=c++11  #-I #-Wall -O3 -funroll-loops -pipe  
+CXXFLAGS = -g -Wall -O3 -fopenmp #-I #-Wall -O3 -funroll-loops -pipe  
 LFLAGS =  -g -fopenmp -Wall -Werror -O3
 
 
