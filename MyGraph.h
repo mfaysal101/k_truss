@@ -23,6 +23,7 @@ class MyGraph
 	}
 
 	std::map<int, std::map<int, Edge>> graph;
+	std::vector<int> vertexIds;
 	
 	void readGraphEdgelist(std::string filename);
 	

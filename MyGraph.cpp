@@ -4,8 +4,11 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string> 
 #include <set>
 #include <chrono>
+#include <omp.h>
 
 
 using namespace std;
@@ -16,38 +19,32 @@ typedef map<int, map<int, Edge>> graphmap;
 
 void MyGraph::readGraphEdgelist(string filename)
 {
-	char FILENAME[filename.length() + 1];
-	strcpy(FILENAME, filename.c_str());
+	cout << "Reading network " << filename << " file\n";
 
-	cout << "Reading network " << filename << " file\n" << flush;
-	
-	FILE* fp = fopen(FILENAME, "r");
+	ifstream infile(filename);
 
-	if (fp == NULL) 
-	{
-		printf("Could not open file\n");
-		exit(EXIT_FAILURE);
-	}
 	printf("File open successful\n");
-	
-	char* line = NULL;
-	size_t len = 0;
-	char* token;
-	
+
+	string line = "";
 	numEdges = 0;
 
-	while((getline(&line, &len, fp) != -1)) 
+	while (getline(infile, line))
 	{
-		int src = atoi(strtok(line, " ,\t"));
-		
-		int dst = atoi(strtok(NULL, " ,\t"));
-		
-		numEdges += processEdge(src, dst);
-	}
-	
-	numVertices = graph.size();
-	
+    		istringstream iss(line);
+    		int src, dst;
+    		if ((iss >> src >> dst)) 
+		{
+			numEdges += processEdge(src, dst);
+		}
+		else
+		{ 
+			break; 
+		}
+	}	
+
+	numVertices = graph.size();	
 	printf("Number of vertices:%lld\n",numVertices);
+	printf("Number of vertices:%lu\n", vertexIds.size());
 	printf("Number of edges:%lld\n", numEdges);
 }
 
@@ -64,6 +61,7 @@ int MyGraph::processEdge(int src, int dst)
 	
 	if(src_it == graph.end())
 	{
+		vertexIds.push_back(src);
 		Edgemap tempmap;
 		tempmap.insert(make_pair(dst, edge));
 		graph.insert(make_pair(src, tempmap));
@@ -81,6 +79,7 @@ int MyGraph::processEdge(int src, int dst)
 	
 	if(dst_it == graph.end())
 	{
+		vertexIds.push_back(dst);
 		Edgemap tempmap;
 		tempmap.insert(make_pair(src, edge));
 		graph.insert(make_pair(dst, tempmap));
@@ -214,48 +213,50 @@ void MyGraph::reorderEL(std::vector<Edge>& sorted_elbys, std::map<Edge, int>& so
 
 int MyGraph::computeSupport(map<Edge, int>& support)
 {
-	int s = 0;
 	int smax = 0;
 	
-	map<Edge, int> temp;
-	
-	for(graphmap::iterator it1 = graph.begin(); it1 != graph.end(); it1++)
+	#pragma omp parallel for reduction(max:smax)
+	for(size_t i = 0; i < vertexIds.size(); i++)
 	{
-		int u = it1->first;
+		int u = vertexIds[i];
 		
-		Edgemap& u_edgelist = it1->second;		//getting the list of edges that vertex u is connected to
-		
-		for(Edgemap::iterator it2 = u_edgelist.begin(); it2 != u_edgelist.end(); it2++)
+		for(Edgemap::iterator it2 = graph[u].begin(); it2 != graph[u].end(); it2++)
 		{
 			int v = it2->first;
 			Edge edge = it2->second;
-		
-			if(support.find(edge) == support.end())	// the edge is not already in the support list
-			{
-				s = 0;
-				
-				for(Edgemap::iterator it3 = u_edgelist.begin(); it3 != u_edgelist.end(); it3++)
+			
+			if(u < v)
+			{				
+				if(support.find(edge) == support.end())	// the edge is not already in the support list
 				{
-					int w = it3->first;
+				
+					int s = 0;
 					
-					if(v != w)
+					for(Edgemap::iterator it3 = graph[u].begin(); it3 != graph[u].end(); it3++)
 					{
-						const Edgemap& v_edgelist = graph[v]; //TODO: This line is more appropriate after line 110 and before 113
-						if(v_edgelist.count(w))
+						int w = it3->first;
+						
+						if(v != w)
 						{
-							s++;
+							
+							if(graph[v].find(w) != graph[v].end())
+							{
+								s++;
+							}
 						}
 					}
+					
+					if(s > smax)
+					{
+						smax = s;
+					}
+					#pragma omp critical
+					{
+						support.insert(make_pair(edge, s));
+					}
 				}
-				
-				if(s > smax)
-				{
-					smax = s;
-				}
-				support.insert(make_pair(edge, s));
 			}
-			//*/
-		}	
+		}			
 	}
 	return smax;
 }
