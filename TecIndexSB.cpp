@@ -272,7 +272,7 @@ void TecIndexSB::readIndex(MyGraph mygraph, string filename)
 	char* line = NULL;
 	size_t len = 0;
 	char* token;
-	char* is_id = "id";
+	const char* is_id = "id";
 	int id, truss;
 	
 	while((getline(&line, &len, fp)!= -1))
@@ -306,7 +306,7 @@ void TecIndexSB::readIndex(MyGraph mygraph, string filename)
 		SGN sg = it->second;
 		vector<Edge> edges = sg.edgelist;
 		
-		for(int i = 0; i < edges.size(); i++)
+		for(unsigned int i = 0; i < edges.size(); i++)
 		{
 			Edge e = edges[i];
 			

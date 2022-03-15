@@ -180,8 +180,8 @@ map<int, set<Edge>> MyGraph::computeTruss(string pathtec, map<Edge, int>& trussd
 void MyGraph::reorderEL(std::vector<Edge>& sorted_elbys, std::map<Edge, int>& sorted_ep, std::map<Edge, int>& supd, std::map<int, int>& svp, Edge e1)
 {
 	int val = supd[e1];
-	int pos1 = sorted_ep[e1];
-	int cp = svp[val];
+	unsigned int pos1 = sorted_ep[e1];
+	unsigned int cp = svp[val];
 	
 	if(cp != pos1)
 	{
