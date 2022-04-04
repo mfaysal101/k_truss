@@ -1,15 +1,15 @@
 #include <set>
 #include <map>
-#include "Edge.h"
+#include "../include/Edge.h"
 #include <queue>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "TecIndexSB.h"
+#include "../include/TecIndexSB.h"
 #include <iostream>
 #include <string.h>
 #include <chrono>
-#include "global.h"
+#include "../include/global.h"
 
 using namespace std;
 

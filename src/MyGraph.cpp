@@ -1,5 +1,5 @@
-#include "MyGraph.h"
-#include "Edge.h"
+#include "../include/MyGraph.h"
+#include "../include/Edge.h"
 #include <stdio.h>
 #include <cstring>
 #include <iostream>
