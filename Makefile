@@ -12,7 +12,7 @@ CUDA_ROOT_DIR=/home/packages/cuda/11.2.2/l2rjomqd
 # CXX compiler options:
 CXX = g++
 LINK = $(CXX)
-LFLAGS =  -g -fopenmp -Wall -Werror -O3	-std=c++11
+LFLAGS =  -g -fopenmp -Wall -O3	-std=c++11
 
 ##########################################################
 
@@ -51,7 +51,7 @@ INC_DIR = include
 EXE = ktruss
 
 # Object files:
-OBJS = $(OBJ_DIR)/Ktruss.o $(OBJ_DIR)/MyGraph.o $(OBJ_DIR)/TecIndexSB.o $(OBJ_DIR)/cudakernel.o
+OBJS = $(OBJ_DIR)/Ktruss.o $(OBJ_DIR)/MyGraph.o $(OBJ_DIR)/TecIndexSB.o $(OBJ_DIR)/forward.o $(OBJ_DIR)/cudakernel.o
 
 
 ##########################################################

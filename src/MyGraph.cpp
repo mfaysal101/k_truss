@@ -9,6 +9,7 @@
 #include <set>
 #include <chrono>
 #include <omp.h>
+#include <algorithm>
 
 
 using namespace std;
@@ -16,6 +17,139 @@ using namespace std;
 typedef map<int, Edge> Edgemap;
 typedef map<int, map<int, Edge>> graphmap;
 
+
+EdgeList MyGraph::ReadEdgeListFromFile(const char* filename)
+{
+	EdgeList edgelist;
+
+	cout << "Reading network " << filename << " file\n";
+
+	ifstream infile(filename);
+	
+	if(infile != nullptr)
+	{
+		printf("File open successful\n");	
+	}
+	else
+	{
+		printf("Failed to read file\n");
+		exit(1);
+	}
+
+	string line = "";
+	totalEdges = 0;
+
+	while (getline(infile, line))
+	{
+    		istringstream iss(line);
+    		int src, dst;
+    		if ((iss >> src >> dst)) 
+		{
+			edgelist.push_back(make_pair(src, dst));
+		}
+	}
+
+	totalEdges = edgelist.size();
+
+	cout<<"Total number of edges:"<<totalEdges<<endl;
+
+	sort(edgelist.begin(), edgelist.end(), [](const pair<int, int>& edge1, const pair<int, int>& edge2){
+		return (edge1.first < edge2.first) || (edge1.first == edge2.first && edge1.second < edge2.second);
+	});
+
+	return edgelist;	
+	
+}
+
+size_t MyGraph::getNumVertices(const EdgeList& edges)
+{
+	int num = 0;
+
+#pragma omp parallel for reduction (max:num)
+	for(size_t i = 0; i < edges.size(); i++)
+	{
+		num = max(num, 1 + max(edges[i].first, edges[i].second));			
+	}
+	
+	totalVertices = num;
+
+	cout << "Total number of vertices:" <<totalVertices<<endl;
+
+	return totalVertices;
+}
+
+AdjList MyGraph::EdgeToAdjList(const EdgeList& edges)
+{
+	AdjList adjGraph(getNumVertices(edges));
+
+	for(auto edge: edges)
+	{
+		adjGraph[edge.first].push_back(edge.second);
+		adjGraph[edge.second].push_back(edge.first);	
+	}
+	
+	return adjGraph;
+}
+
+void MyGraph::PreProcessAdjList(AdjList& adjlist)
+{
+	int len = adjlist.size();
+
+#pragma omp parallel for
+	for(int i = 0; i < len; i++)
+	{
+		sort(adjlist[i].begin(), adjlist[i].end());
+	}
+}
+
+void MyGraph::prepareGPUList(const EdgeList& edgelist, int* u_list, int* v_list, int* gpu_spt_list)
+{
+	int len = edgelist.size();
+
+	for(int i = 0; i < len; i++)
+	{
+		u_list[i] = edgelist[i].first;
+		v_list[i] = edgelist[i].second;
+		gpu_spt_list[i] = 0;
+	}
+
+}
+
+pair<int*, int*> MyGraph::flattenAdjList(AdjList& adjlist)
+{
+	int len = adjlist.size();
+	
+	int total_len = 0;
+	
+	int* indices = new int[len + 1];	// the extra 1 index is to mark the end of the neighborhood list for the last vertex
+	indices[0] = 0;
+	total_len += adjlist[0].size();
+	
+	for(int i = 1; i < len; i++)
+	{
+		total_len += adjlist[i].size();
+		indices[i] = indices[i-1] + adjlist[i-1].size(); 
+	}
+
+	indices[len] = indices[len-1] + adjlist[len-1].size();
+	
+	int* flatten = new int[total_len];
+
+	int t_len = 0;
+
+	for(int i = 0; i < len; i++)
+	{
+		int nested_len = adjlist[i].size();
+
+		for(int j = 0; j < nested_len; j++)
+		{
+			flatten[t_len] = adjlist[i][j];
+			t_len++;
+		}
+	}
+
+	return {flatten, indices};
+}
 
 void MyGraph::readGraphEdgelist(string filename)
 {

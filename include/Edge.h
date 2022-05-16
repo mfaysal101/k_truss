@@ -1,6 +1,11 @@
 #ifndef EDGE_H
 #define EDGE_H
 
+#include<vector>
+
+typedef std::vector<std::pair<int, int> > EdgeList;
+typedef std::vector<std::vector<int> > AdjList;
+
 class Edge
 {
 	public:

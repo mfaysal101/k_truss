@@ -6,7 +6,7 @@
 #include <vector>
 #include <set>
 #include <string>
-
+#include <utility>
 
 
 class MyGraph
@@ -15,6 +15,9 @@ class MyGraph
 	
 	long long numEdges;
 	long long numVertices;
+
+	size_t totalEdges;
+	size_t totalVertices;
 	
 	MyGraph()
 	{
@@ -42,7 +45,19 @@ class MyGraph
 	Edge removeEdge(int u, int v);
 	
 	Edge getEdge(int u, int v);
+
+	EdgeList ReadEdgeListFromFile(const char* filename);
 	
+	size_t getNumVertices(const EdgeList& edges);
+
+	AdjList EdgeToAdjList(const EdgeList& edges);
+
+	void PreProcessAdjList(AdjList& adjlist);
+	
+	void prepareGPUList(const EdgeList& edgelist, int* u_list, int* v_list, int* gpu_spt_list);
+
+	std::pair<int*, int*> flattenAdjList(AdjList& adjlist);
+
 };
 
 
