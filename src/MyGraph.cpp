@@ -26,7 +26,7 @@ EdgeList MyGraph::ReadEdgeListFromFile(const char* filename)
 
 	ifstream infile(filename);
 	
-	if(infile != nullptr)
+	if(infile)
 	{
 		printf("File open successful\n");	
 	}

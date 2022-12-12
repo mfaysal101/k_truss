@@ -21,6 +21,7 @@ double networkReadTime;
 double computeTrussTime;
 double constructIndexTime;
 double timediff;
+double onlyKernelTime;
 
 int main(int argc, char *argv []) 
 {
@@ -48,6 +49,7 @@ int main(int argc, char *argv [])
 	computeTrussTime = 0.0;
 	constructIndexTime = 0.0;
 	timediff = 0.0;
+	onlyKernelTime = 0.0;
 	
 	// The following commented out code is to show how to transfer data and do computation in GPU
 	
@@ -207,6 +209,7 @@ int main(int argc, char *argv [])
 	printf("========NodeIteratorN_time:%0.9f==========\n", NodeIteratorN_time*(1e-9));
 	printf("========NodeIteratorN4GPU_time:%0.9f==========\n", NodeIteratorN4GPU_time*(1e-9));
 	printf("========graphKernel_time:%0.9f==========\n", graphKernel_time*(1e-9));
+	printf("========onlyKernelTime:%0.9f==========\n", onlyKernelTime*(1e-9));
 	printf("========computeTrussTime:%0.9f===========\n", computeTrussTime*(1e-9));
 	printf("========constructIndexTime:%0.9f===========\n", constructIndexTime*(1e-9));
 	

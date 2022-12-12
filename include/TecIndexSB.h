@@ -34,5 +34,4 @@ class TecIndexSB
 	std::vector<std::vector<Edge>> findkCommunityForQuery(int query, int k);
 };
 
-
 #endif

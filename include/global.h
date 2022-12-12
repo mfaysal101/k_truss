@@ -6,5 +6,6 @@ extern double networkReadTime;
 extern double computeTrussTime;
 extern double constructIndexTime;
 extern double timediff;
+extern double onlyKernelTime;
 
 #endif

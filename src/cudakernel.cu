@@ -1,5 +1,7 @@
 #include "../include/cudakernel.cuh"
 #include <cstdio>
+#include <chrono>
+#include "../include/global.h"
 
 
 /**
@@ -118,9 +120,17 @@ int* graphKernel(const EdgeList& edges, int n, int* flatarray, int flatarrayleng
 
 	// right now, the code below for sending the edges by 2 different array is in preliminary stage, I will probably do a better approach in near future
 
-	int *us = new int[m];
-	int *vs = new int[m];
+	//int *us = new int[m];
+	//int *vs = new int[m];
 
+	//checking with pinned memory
+
+	int *us, *vs;
+
+	cudaMallocHost((void**)&us, m * sizeof(int));
+	cudaMallocHost((void**)&vs, m * sizeof(int));
+	cudaMallocHost((void**)&results, m * sizeof(int));
+	
 	for(int i = 0; i < m; i++)
 	{
 		us[i] = edges[i].first;
@@ -129,7 +139,7 @@ int* graphKernel(const EdgeList& edges, int n, int* flatarray, int flatarrayleng
 	
 	// allocate memory in GPU for transfering the graph
 
-	results = (int*) malloc(m * sizeof(int));
+	
 	cudaMalloc((void**) &d_us, m * sizeof(int));
 	cudaMalloc((void**) &d_vs, m * sizeof(int));
     	cudaMalloc((void**) &d_flatarray, flatarraylength * sizeof(int));
@@ -146,7 +156,13 @@ int* graphKernel(const EdgeList& edges, int n, int* flatarray, int flatarrayleng
     	dim3 blockSize(512, 1, 1);
     	dim3 gridSize(512 / m + 1, 1);
 
+	auto tm1 = std::chrono::high_resolution_clock::now();
+
 	cuda_computeSupport_kernel<<<gridSize, blockSize>>>(m, d_us, d_vs, d_flatarray, n, d_indices, d_results);
+	
+	auto tm2 = std::chrono::high_resolution_clock::now();
+
+	onlyKernelTime += std::chrono::duration_cast<std::chrono::nanoseconds>(tm2 - tm1).count();
 
 	// cudaDeviceSynchronize();
 

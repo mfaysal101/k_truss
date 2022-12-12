@@ -3,16 +3,18 @@
 ## USER SPECIFIC DIRECTORIES ##
 
 # CUDA directory:
-CUDA_ROOT_DIR=/home/packages/cuda/11.2.2/l2rjomqd
+# CUDA_ROOT_DIR=/home/packages/cuda/11.2.2/l2rjomqd
+
+#CUDA_ROOT_DIR=/global/common/cori_cle7/software/sles15_cgpu/cuda/11.2.2
 
 ###########################################################
 
 ## CXX COMPILER OPTIONS ##
 
 # CXX compiler options:
-CXX = g++
+CXX = nvc++
 LINK = $(CXX)
-LFLAGS =  -g -fopenmp -Wall -O3	-std=c++11
+LFLAGS =  -g -mp -O3 -std=c++11 -cuda
 
 ##########################################################
 
@@ -20,13 +22,14 @@ LFLAGS =  -g -fopenmp -Wall -O3	-std=c++11
 
 # NVCC compiler options:
 NVCC=nvcc
-NVCC_FLAGS= -arch=compute_35 -code=sm_35
+NVCC_FLAGS= -arch=compute_35 -code=sm_35 -std=c++11
+
 # NVCC_LIBS=
 
 # CUDA library directory:
-CUDA_LIB_DIR= -L$(CUDA_ROOT_DIR)/lib64
+CUDA_LIB_DIR= -L$(CUDA_PATH)/lib64
 # CUDA include directory:
-CUDA_INC_DIR= -I$(CUDA_ROOT_DIR)/include
+CUDA_INC_DIR= -I$(CUDA_PATH)/include
 # CUDA linking libraries:
 CUDA_LINK_LIBS= -lcudart
 
