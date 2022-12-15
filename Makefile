@@ -22,7 +22,7 @@ LFLAGS =  -g -mp -O3 -std=c++11 -cuda
 
 # NVCC compiler options:
 NVCC=nvcc
-NVCC_FLAGS= -arch=compute_35 -code=sm_35 -std=c++11
+NVCC_FLAGS= -std=c++11
 
 # NVCC_LIBS=
 
